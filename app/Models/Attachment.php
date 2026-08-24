@@ -1,0 +1,31 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Attachment extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'task_id',
+        'uploaded_by',
+        'filename',
+        'original_filename',
+        'file_path',
+        'mime_type',
+        'file_size',
+    ];
+
+    public function task()
+    {
+        return $this->belongsTo(Task::class);
+    }
+
+    public function uploader()
+    {
+        return $this->belongsTo(User::class, 'uploaded_by');
+    }
+}
