@@ -50,8 +50,7 @@ RUN echo '<Directory /var/www/html/public>' >> /etc/apache2/apache2.conf && \
     echo '</Directory>' >> /etc/apache2/apache2.conf
 
 # ===== Run Laravel optimizations (without route cache) =====
-RUN php artisan view:cache \
-    && php artisan migrate --force
+RUN php artisan view:cache
 
 # Expose port 80
 EXPOSE 80
