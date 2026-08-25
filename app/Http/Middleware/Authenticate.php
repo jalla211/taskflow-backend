@@ -12,7 +12,7 @@ class Authenticate extends Middleware
      */
     protected function redirectTo(Request $request): ?string
     {
-        // For API requests, return null (no redirect)
+        // For API requests, return null – we handle it via unauthenticated() method
         if ($request->is('api/*')) {
             return null;
         }
@@ -25,10 +25,14 @@ class Authenticate extends Middleware
      */
     protected function unauthenticated($request, array $guards)
     {
+        // For API requests, return JSON 401 response
         if ($request->is('api/*')) {
-            abort(response()->json(['message' => 'Unauthenticated. Please login first.'], 401));
+            abort(response()->json([
+                'message' => 'Unauthenticated. Please login first.'
+            ], 401));
         }
 
+        // For web requests, use the default behavior
         parent::unauthenticated($request, $guards);
     }
 }
