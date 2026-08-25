@@ -88,6 +88,17 @@ class DefaultUsersSeeder extends Seeder
                 'phone' => '0788000003',
             ]
         );
+        // Create Real User (gateteprince24@gmail.com - Project Manager)
+        User::updateOrCreate(
+            ['email' => 'gateteprince24@gmail.com'],
+            [
+                'name' => 'GATETE Prince',
+                'password' => Hash::make('KIGALI24'),
+                'role_id' => $pmRole?->id ?? 2,
+                'is_active' => true,
+                'phone' => '0790781195',
+            ]
+        );
         $this->command->info('Team Member created.');
 
         $this->command->info('✅ Default users created successfully!');
