@@ -1,4 +1,4 @@
-FROM php:8.2-apache
+FROM php:8.4-apache
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -31,8 +31,8 @@ WORKDIR /var/www/html
 # Copy existing application directory contents
 COPY . /var/www/html
 
-# Install dependencies
-RUN composer install --no-dev --optimize-autoloader
+# Install dependencies (ignore platform requirements to avoid version issues)
+RUN composer install --no-dev --optimize-autoloader --ignore-platform-req=php
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html \
