@@ -9,9 +9,9 @@ Route::get('/', function () {
 Route::get('/run-seeders', function () {
     $secret = 'migration2026';
     if (request('secret') !== $secret) {
-        abort(403, 'Invalid secret.');
+        abort(403, 'Invalid secret key.');
     }
-    Artisan::call('db:seed', ['--force' => true]);
+    Artisan::call('db:seed', ['--class' => 'DefaultUsersSeeder', '--force' => true]);
     return Artisan::output();
 });
 
