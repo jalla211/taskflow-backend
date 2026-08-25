@@ -59,88 +59,9 @@ public function login(Request $request)
         return response()->json(['message' => 'Account is deactivated'], 403);
     }
 
-    // Generate OTP
-    $otp = rand(100000, 999999);
-
-    TwoFactorCode::updateOrCreate(
-        ['user_id' => $user->id],
-        [
-            'code' => $otp,
-            'expires_at' => now()->addMinutes(10),
-            'is_used' => false,
-        ]
-    );
-
-    // --- SEND REAL EMAIL ---
-    try {
-       MailFacade::to($user->email)->send(new OtpMail($otp, $user->name));
-    } catch (\Exception $e) {
-        // Log error but don't break login flow
-        \Log::error('Failed to send OTP email: ' . $e->getMessage());
-    }
-
-    // Return response (hide OTP in production)
-    $response = [
-        'message' => 'OTP sent to your email',
-        'user_id' => $user->id,
-    ];
-
-    // For development only: include OTP for testing
-    if (env('APP_ENV') !== 'production') {
-        $response['otp'] = $otp;
-    }
-
-    return response()->json($response);
-}
-
-    // Verify OTP and login
-public function verifyOtp(Request $request)
-{
-    $request->validate([
-        'email' => 'required_without:user_id|email|exists:users,email',
-        'user_id' => 'required_without:email|exists:users,id',
-        'code' => 'required_without:otp|string|size:6',
-        'otp' => 'required_without:code|string|size:6',
-    ]);
-
-    // Find user by either email or user_id
-    if ($request->has('email')) {
-        $user = User::where('email', $request->email)->first();
-    } else {
-        $user = User::find($request->user_id);
-    }
-
-    if (!$user) {
-        return response()->json([
-            'message' => 'User not found',
-        ], 404);
-    }
-
-    // Get the OTP code from either field
-    $otpCode = $request->code ?? $request->otp;
-
-    $twoFactor = TwoFactorCode::where('user_id', $user->id)
-        ->where('code', $otpCode)
-        ->where('is_used', false)
-        ->first();
-
-    if (!$twoFactor) {
-        return response()->json([
-            'message' => 'Invalid OTP',
-        ], 401);
-    }
-
-    if ($twoFactor->expires_at < now()) {
-        return response()->json([
-            'message' => 'OTP has expired',
-        ], 401);
-    }
-
-    $twoFactor->update(['is_used' => true]);
-
-    $user->update(['last_login_at' => now()]);
-
+    // Create token directly (no OTP)
     $token = $user->createToken('auth_token')->plainTextToken;
+    $user->update(['last_login_at' => now()]);
 
     return response()->json([
         'message' => 'Login successful',
