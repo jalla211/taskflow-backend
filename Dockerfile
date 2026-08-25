@@ -47,7 +47,8 @@ COPY conf/laravel.conf /etc/apache2/conf-available/laravel.conf
 RUN a2enconf laravel
 
 # ===== Run Laravel optimizations =====
-RUN php artisan view:cache
+RUN php artisan route:clear \
+    && php artisan view:cache
 
 # Expose port 80
 EXPOSE 80

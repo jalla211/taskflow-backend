@@ -16,3 +16,6 @@ Route::get('/run-migrations', function () {
     Artisan::call('migrate', ['--force' => true]);
     return Artisan::output();
 });
+Route::get('/login', function () {
+    return response()->json(['message' => 'Please login to access this resource.'], 401);
+})->name('login');
