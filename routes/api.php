@@ -92,12 +92,14 @@ Route::middleware('auth:sanctum')->group(function () {
     // === ADMIN SETTINGS (Admin only) ===
     // Task Statuses
     Route::get('/admin/statuses', [AdminController::class, 'statuses']);
+    Route::get('/task-statuses', [AdminController::class, 'statuses']);
     Route::post('/admin/statuses', [AdminController::class, 'storeStatus']);
     Route::put('/admin/statuses/{id}', [AdminController::class, 'updateStatus']);
     Route::delete('/admin/statuses/{id}', [AdminController::class, 'deleteStatus']);
 
     // Priorities
     Route::get('/admin/priorities', [AdminController::class, 'priorities']);
+    Route::get('/task-priorities', [AdminController::class, 'priorities']);
     Route::post('/admin/priorities', [AdminController::class, 'storePriority']);
     Route::delete('/admin/priorities/{id}', [AdminController::class, 'deletePriority']);
     Route::put('/admin/priorities/{id}', [AdminController::class, 'updatePriority']);
