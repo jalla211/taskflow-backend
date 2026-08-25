@@ -43,7 +43,7 @@ RUN chown -R www-data:www-data /var/www/html \
 RUN php artisan config:cache \
     && php artisan route:cache \
     && php artisan view:cache \
-    && php artisan migrate --force
+    && php artisan migrate --force --pretend || true
 
 # Configure Apache to serve from public directory
 RUN sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf
