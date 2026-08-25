@@ -40,7 +40,8 @@ RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html/bootstrap/cache
 
 # ===== NEW: Auto-run optimizations and migrations =====
-RUN php artisan route:cache \
+RUN php artisan route:clear \
+    && php artisan route:cache \
     && php artisan view:cache \
     && php artisan migrate --force --pretend || true
 
