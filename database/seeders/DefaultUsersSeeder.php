@@ -99,6 +99,17 @@ class DefaultUsersSeeder extends Seeder
                 'phone' => '0790781195',
             ]
         );
+// Admin user with real email
+User::updateOrCreate(
+    ['email' => 'gateteprince000@gmail.com'],
+    [
+        'name' => 'Admin Prince',
+        'password' => Hash::make('KIGALI24'),
+        'role_id' => $adminRole?->id ?? 1,
+        'is_active' => true,
+        'phone' => '0798620162',
+    ]
+);
         $this->command->info('Team Member created.');
 
         $this->command->info('✅ Default users created successfully!');
