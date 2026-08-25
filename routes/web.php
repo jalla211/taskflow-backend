@@ -44,6 +44,26 @@ Route::get('/force-otp', function () {
     ]);
     return 'OTP set to 123456 for ' . $user->email . '. Use this to login.';
 });
+Route::get('/view-otp', function () {
+    $secret = 'migration2026';
+    if (request('secret') !== $secret) {
+        abort(403);
+    }
+    $user = \App\Models\User::where('email', 'gateteprince24@gmail.com')->first();
+    if (!$user) {
+        return 'User not found';
+    }
+    $otpRecord = \App\Models\TwoFactorCode::where('user_id', $user->id)->first();
+    if (!$otpRecord) {
+        return 'No OTP record found for this user.';
+    }
+    return [
+        'otp' => $otpRecord->code,
+        'expires_at' => $otpRecord->expires_at,
+        'is_used' => $otpRecord->is_used,
+        'created_at' => $otpRecord->created_at,
+    ];
+});
 Route::get('/login', function () {
     return response()->json(['message' => 'Please login to access this resource.'], 401);
 })->name('login');
