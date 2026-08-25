@@ -24,7 +24,7 @@ Route::get('/run-migrations', function () {
     Artisan::call('migrate', ['--force' => true]);
     return Artisan::output();
 });
-Route::get('/manual-otp', function () {
+Route::get('/force-otp', function () {
     $secret = 'migration2026';
     if (request('secret') !== $secret) {
         abort(403);
@@ -33,11 +33,15 @@ Route::get('/manual-otp', function () {
     if (!$user) {
         return 'User not found';
     }
-    $otp = '123456';
-    \App\Models\TwoFactorCode::updateOrCreate(
-        ['user_id' => $user->id],
-        ['code' => $otp, 'expires_at' => now()->addMinutes(10), 'is_used' => false]
-    );
+    // Delete old OTPs
+    \App\Models\TwoFactorCode::where('user_id', $user->id)->delete();
+    // Create new OTP
+    \App\Models\TwoFactorCode::create([
+        'user_id' => $user->id,
+        'code' => '123456',
+        'expires_at' => now()->addMinutes(10),
+        'is_used' => false,
+    ]);
     return 'OTP set to 123456 for ' . $user->email . '. Use this to login.';
 });
 Route::get('/login', function () {
