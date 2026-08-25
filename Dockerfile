@@ -39,12 +39,19 @@ RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html/storage \
     && chmod -R 755 /var/www/html/bootstrap/cache
 
-# ===== NEW: Auto-run optimizations and migrations =====
-RUN php artisan view:cache \
-    && php artisan migrate --force --pretend || true
-
 # Configure Apache to serve from public directory
 RUN sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf
+
+# ===== NEW: Allow .htaccess overrides =====
+RUN echo '<Directory /var/www/html/public>' >> /etc/apache2/apache2.conf && \
+    echo '    Options Indexes FollowSymLinks' >> /etc/apache2/apache2.conf && \
+    echo '    AllowOverride All' >> /etc/apache2/apache2.conf && \
+    echo '    Require all granted' >> /etc/apache2/apache2.conf && \
+    echo '</Directory>' >> /etc/apache2/apache2.conf
+
+# ===== Run Laravel optimizations (without route cache) =====
+RUN php artisan view:cache \
+    && php artisan migrate --force
 
 # Expose port 80
 EXPOSE 80
