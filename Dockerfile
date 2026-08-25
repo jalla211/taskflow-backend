@@ -42,14 +42,11 @@ RUN chown -R www-data:www-data /var/www/html \
 # Configure Apache to serve from public directory
 RUN sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf
 
-# ===== NEW: Allow .htaccess overrides =====
-RUN echo '<Directory /var/www/html/public>' >> /etc/apache2/apache2.conf && \
-    echo '    Options Indexes FollowSymLinks' >> /etc/apache2/apache2.conf && \
-    echo '    AllowOverride All' >> /etc/apache2/apache2.conf && \
-    echo '    Require all granted' >> /etc/apache2/apache2.conf && \
-    echo '</Directory>' >> /etc/apache2/apache2.conf
+# ===== FIX: Copy custom Apache config for .htaccess =====
+COPY conf/laravel.conf /etc/apache2/conf-available/laravel.conf
+RUN a2enconf laravel
 
-# ===== Run Laravel optimizations (without route cache) =====
+# ===== Run Laravel optimizations =====
 RUN php artisan view:cache
 
 # Expose port 80
