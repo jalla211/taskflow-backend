@@ -80,6 +80,25 @@ Route::get('/direct-login', function () {
         'message' => 'Logged in successfully! Copy the token to local storage.'
     ];
 });
+// Run TaskSettingsSeeder to populate statuses & priorities
+Route::get('/run-task-settings', function () {
+    $secret = 'migration2026';
+    if (request('secret') !== $secret) {
+        abort(403, 'Invalid secret key.');
+    }
+    Artisan::call('db:seed', ['--class' => 'TaskSettingsSeeder', '--force' => true]);
+    return Artisan::output();
+});
+
+// Create storage symlink for profile pictures
+Route::get('/link-storage', function () {
+    $secret = 'migration2026';
+    if (request('secret') !== $secret) {
+        abort(403, 'Invalid secret key.');
+    }
+    Artisan::call('storage:link');
+    return Artisan::output();
+});
 Route::get('/login', function () {
     return response()->json(['message' => 'Please login to access this resource.'], 401);
 })->name('login');
