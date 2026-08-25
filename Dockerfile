@@ -31,13 +31,19 @@ WORKDIR /var/www/html
 # Copy existing application directory contents
 COPY . /var/www/html
 
-# Install dependencies (ignore platform requirements to avoid version issues)
+# Install dependencies
 RUN composer install --no-dev --optimize-autoloader --ignore-platform-req=php
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html/storage \
     && chmod -R 755 /var/www/html/bootstrap/cache
+
+# ===== NEW: Auto-run optimizations and migrations =====
+RUN php artisan config:cache \
+    && php artisan route:cache \
+    && php artisan view:cache \
+    && php artisan migrate --force
 
 # Configure Apache to serve from public directory
 RUN sed -i 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf
