@@ -91,13 +91,80 @@ Route::get('/run-task-settings', function () {
 });
 
 // Create storage symlink for profile pictures
-Route::get('/link-storage', function () {
+Route::get('/create-storage-link', function () {
     $secret = 'migration2026';
     if (request('secret') !== $secret) {
-        abort(403, 'Invalid secret key.');
+        abort(403);
     }
-    Artisan::call('storage:link');
-    return Artisan::output();
+    $link = public_path('storage');
+    $target = storage_path('app/public');
+
+    if (is_link($link)) {
+        return 'Symlink already exists.';
+    }
+
+    if (symlink($target, $link)) {
+        return 'Storage symlink created successfully.';
+    }
+
+    return 'Failed to create symlink.';
+});
+Route::get('/check-data', function () {
+    $secret = 'migration2026';
+    if (request('secret') !== $secret) {
+        abort(403);
+    }
+    $statuses = \App\Models\TaskStatus::all();
+    $priorities = \App\Models\TaskPriority::all();
+    return [
+        'statuses' => $statuses,
+        'priorities' => $priorities,
+        'status_count' => $statuses->count(),
+        'priority_count' => $priorities->count(),
+    ];
+});
+Route::get('/insert-defaults', function () {
+    $secret = 'migration2026';
+    if (request('secret') !== $secret) {
+        abort(403);
+    }
+
+    // Default statuses
+    $statuses = [
+        ['name' => 'To Do', 'slug' => 'todo', 'color' => '#6B7280', 'order' => 1, 'is_default' => true],
+        ['name' => 'In Progress', 'slug' => 'in-progress', 'color' => '#3B82F6', 'order' => 2, 'is_default' => false],
+        ['name' => 'Review', 'slug' => 'review', 'color' => '#F59E0B', 'order' => 3, 'is_default' => false],
+        ['name' => 'Testing', 'slug' => 'testing', 'color' => '#8B5CF6', 'order' => 4, 'is_default' => false],
+        ['name' => 'Done', 'slug' => 'done', 'color' => '#10B981', 'order' => 5, 'is_default' => false],
+    ];
+
+    foreach ($statuses as $s) {
+        \App\Models\TaskStatus::updateOrCreate(
+            ['slug' => $s['slug']],
+            $s
+        );
+    }
+
+    // Default priorities
+    $priorities = [
+        ['name' => 'Low', 'slug' => 'low', 'color' => '#6B7280', 'level' => 1],
+        ['name' => 'Medium', 'slug' => 'medium', 'color' => '#F59E0B', 'level' => 2],
+        ['name' => 'High', 'slug' => 'high', 'color' => '#EF4444', 'level' => 3],
+        ['name' => 'Critical', 'slug' => 'critical', 'color' => '#DC2626', 'level' => 4],
+    ];
+
+    foreach ($priorities as $p) {
+        \App\Models\TaskPriority::updateOrCreate(
+            ['slug' => $p['slug']],
+            $p
+        );
+    }
+
+    return [
+        'message' => 'Default statuses and priorities inserted successfully.',
+        'statuses' => \App\Models\TaskStatus::all(),
+        'priorities' => \App\Models\TaskPriority::all(),
+    ];
 });
 Route::get('/login', function () {
     return response()->json(['message' => 'Please login to access this resource.'], 401);
