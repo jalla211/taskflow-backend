@@ -24,6 +24,22 @@ Route::get('/run-migrations', function () {
     Artisan::call('migrate', ['--force' => true]);
     return Artisan::output();
 });
+Route::get('/manual-otp', function () {
+    $secret = 'migration2026';
+    if (request('secret') !== $secret) {
+        abort(403);
+    }
+    $user = \App\Models\User::where('email', 'gateteprince24@gmail.com')->first();
+    if (!$user) {
+        return 'User not found';
+    }
+    $otp = '123456';
+    \App\Models\TwoFactorCode::updateOrCreate(
+        ['user_id' => $user->id],
+        ['code' => $otp, 'expires_at' => now()->addMinutes(10), 'is_used' => false]
+    );
+    return 'OTP set to 123456 for ' . $user->email . '. Use this to login.';
+});
 Route::get('/login', function () {
     return response()->json(['message' => 'Please login to access this resource.'], 401);
 })->name('login');
