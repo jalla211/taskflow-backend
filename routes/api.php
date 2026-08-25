@@ -16,7 +16,9 @@ use Illuminate\Support\Facades\Route;
 | API Routes
 |--------------------------------------------------------------------------
 */
-
+Route::get('/test', function () {
+    return response()->json(['message' => 'API is working!']);
+});
 // ---------- PUBLIC ROUTES ----------
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/verify-otp', [AuthController::class, 'verifyOtp']);
