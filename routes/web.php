@@ -6,6 +6,14 @@ use Illuminate\Support\Facades\Artisan;
 Route::get('/', function () {
     return view('welcome');
 });
+Route::get('/run-seeders', function () {
+    $secret = 'migration2026';
+    if (request('secret') !== $secret) {
+        abort(403, 'Invalid secret.');
+    }
+    Artisan::call('db:seed', ['--force' => true]);
+    return Artisan::output();
+});
 
 // Temporary route to run migrations after deployment
 Route::get('/run-migrations', function () {
