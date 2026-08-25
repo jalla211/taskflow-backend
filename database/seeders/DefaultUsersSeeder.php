@@ -11,11 +11,32 @@ class DefaultUsersSeeder extends Seeder
 {
     public function run(): void
     {
-        // Get roles
+        // ===== FIRST: Ensure roles exist =====
+        $this->command->info('Checking and creating roles...');
+
+        $roles = [
+            ['name' => 'System Administrator', 'slug' => 'admin'],
+            ['name' => 'Project Manager', 'slug' => 'project-manager'],
+            ['name' => 'Team Leader', 'slug' => 'team-leader'],
+            ['name' => 'Team Member', 'slug' => 'team-member'],
+        ];
+
+        foreach ($roles as $roleData) {
+            Role::updateOrCreate(
+                ['slug' => $roleData['slug']],
+                ['name' => $roleData['name']]
+            );
+            $this->command->info("Role '{$roleData['name']}' created/updated.");
+        }
+
+        // ===== SECOND: Get roles =====
         $adminRole = Role::where('slug', 'admin')->first();
         $pmRole = Role::where('slug', 'project-manager')->first();
         $teamLeaderRole = Role::where('slug', 'team-leader')->first();
         $teamMemberRole = Role::where('slug', 'team-member')->first();
+
+        // ===== THIRD: Create users =====
+        $this->command->info('Creating users...');
 
         // Create Admin
         User::updateOrCreate(
@@ -28,6 +49,7 @@ class DefaultUsersSeeder extends Seeder
                 'phone' => '0788000000',
             ]
         );
+        $this->command->info('Admin user created.');
 
         // Create Project Manager
         User::updateOrCreate(
@@ -40,6 +62,7 @@ class DefaultUsersSeeder extends Seeder
                 'phone' => '0788000001',
             ]
         );
+        $this->command->info('Project Manager created.');
 
         // Create Team Leader
         User::updateOrCreate(
@@ -52,6 +75,7 @@ class DefaultUsersSeeder extends Seeder
                 'phone' => '0788000002',
             ]
         );
+        $this->command->info('Team Leader created.');
 
         // Create Team Member
         User::updateOrCreate(
@@ -64,7 +88,8 @@ class DefaultUsersSeeder extends Seeder
                 'phone' => '0788000003',
             ]
         );
+        $this->command->info('Team Member created.');
 
-        $this->command->info('Default users created successfully!');
+        $this->command->info('✅ Default users created successfully!');
     }
 }
